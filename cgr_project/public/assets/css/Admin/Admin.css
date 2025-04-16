@@ -1,0 +1,40 @@
+/* .navbg{
+    background-color: #405189;
+    color: white;
+} */
+/* .leftnavmenu .navbar-nav .menu-title {
+    color: white;
+} */
+
+
+/* On hover — show slim scrollbar */
+.leftnavmenu:hover {
+    overflow-y: auto !important;
+    padding: 0%;
+    margin: 0%;
+}
+
+/* Slim scrollbar style (visible on hover) */
+.leftnavmenu::-webkit-scrollbar {
+    width: 2px;
+}
+
+.leftnavmenu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.leftnavmenu::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+}
+
+/* Firefox support: hide by default, show on hover */
+.leftnavmenu {
+    scrollbar-width: none; /* hide */
+}
+
+.leftnavmenu:hover {
+    scrollbar-width: thin;
+    /* scrollbar-color: rgba(0, 0, 0, 0.3) transparent; */
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}

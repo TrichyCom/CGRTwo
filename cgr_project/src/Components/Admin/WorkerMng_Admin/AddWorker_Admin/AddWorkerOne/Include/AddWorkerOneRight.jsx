@@ -1,6 +1,166 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect,useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+
 function AddWorkerOneRight() {
+
+    
+
+  const navigate = useNavigate();
+  // const roles = ["Electrician", "Plumber", "Welder", "Steel Fixer", "Painter"]; 
+  const [roles, setRoles] = useState([]); // Store fetched roles
+
+  // Fetch roles from feilds table
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/feilds"); // Replace with your API URL
+      const roleNames = response.data.map((item) => item.Feilds); // Extract Feilds column
+      setRoles(roleNames);
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+    }
+  };
+
+  const [formData, setFormData] = useState({
+    EmpId: "",
+    EmpPosition: "",
+    CompanyName: "",
+    Department: "",
+    FirstName: "",
+    LastName: "",
+    Age: "",
+    ExpYear: "",
+    Gender: "Male",
+    ContNum: "",
+    EmergencyContNum: "",
+    BankAccNum: "",
+    SelectFeilds: [],
+    PanTaxId: "",
+    SelectRole: "",
+  });
+
+
+
+  const handleRoleChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
+    setFormData((prevData) => ({
+      ...prevData,
+      SelectFeilds: selectedOptions,
+    }));
+  };
+
+
+
+  // Handle navigation to next form
+  const handleNext = () => {
+    localStorage.setItem("workerData", JSON.stringify(formData));
+    navigate("/addworkertwo");
+  };
+
+
+
+
+
+
+
+
+  const [isOpen, setIsOpen] = useState(false); // State to handle toggle
+
+  useEffect(() => {
+    const storedData = JSON.parse(localStorage.getItem("workerData")) || {};
+    setFormData((prevData) => ({
+      ...prevData,
+      ...storedData,
+      SelectFields: storedData.SelectFields || [],
+    }));
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleCheckboxChange = (role) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      SelectFeilds: prevData.SelectFeilds.includes(role)
+        ? prevData.SelectFeilds.filter((r) => r !== role)
+        : [...prevData.SelectFeilds, role],
+    }));
+  };
+
+
+
+
+  // add role
+  const [roless, setRoless] = useState([]); // Store roles from DB
+
+  useEffect(() => {
+    fetchRoless(); // Fetch roles on component load
+  }, []);
+
+  // Fetch roles from the database
+  const fetchRoless = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/roles"); // Replace with your API URL
+      setRoless(response.data);
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+    }
+  };
+
+
+
+
+  // department
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:3001/departments") // Update the API endpoint based on your backend route
+      .then((response) => {
+        setDepartments(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching departments:", error);
+      });
+  }, []);
+
+
+
+   const fileInputRef = useRef(null); // Reference for file input
+   const [selectedFile, setSelectedFile] = useState(null);
+   const previewImg = localStorage.getItem("workerProfileImg");
+
+
+   const handleFileChange = (e) => {
+     const file = e.target.files[0];
+     if (file) {
+       const reader = new FileReader();
+       reader.onloadend = () => {
+         localStorage.setItem("workerProfileImg", reader.result); // base64 string
+         setSelectedFile(file); // save file in state for later use
+       };
+       reader.readAsDataURL(file); // convert to base64
+     }
+   };
+
+
+
+
+
+
+
+   const [companyOptions, setCompanyOptions] = useState([]);
+
+   useEffect(() => {
+    axios.get("http://localhost:3001/getCompanies")
+      .then((res) => setCompanyOptions(res.data))
+      .catch((err) => console.error(err));
+  }, []);
     return (
         <>
             <div className="main-content">
@@ -29,7 +189,8 @@ function AddWorkerOneRight() {
                                     <div className="card-header align-items-center d-flex">
                                         <h4 className="card-title mb-0 flex-grow-1">Workers Details ...</h4>
                                         <div className="flex-shrink-0">
-                                            check
+                                        {previewImg && (
+  <img src={previewImg} alt="Preview" width={50} height={50} className="rounded-5 "/>)}
                                         </div>
                                     </div>
                                     {/* end card header */}
@@ -38,129 +199,175 @@ function AddWorkerOneRight() {
                                             <div className="row gy-4">
                                                 <div className="col-xxl-4 col-md-6">
                                                     <div>
-                                                        <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                        <input type="text" className="form-control" id="placeholderInput" placeholder="Placeholder" />
+                                                        <label className="form-label" htmlFor="exampleFormControlInput1">Employee ID</label>
+                                                        <input type="text" className="form-control input" name="EmpId" id="exampleFormControlInput1" placeholder="Employee ID" onChange={handleChange} value={formData.EmpId} required />
+
                                                     </div>
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
                                                     <div>
-                                                        <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                        <input type="text" className="form-control" id="placeholderInput" placeholder="Placeholder" />
+                                                        <label className="form-label" htmlFor="exampleFormControlInput1">Employee Position</label>
+                                                        <select
+                                                            className="form-select selectinput"
+                                                            name="EmpPosition"
+                                                            value={formData.EmpPosition}
+                                                            onChange={handleChange}
+                                                        >
+                                                            <option value="">Select Position</option>
+                                                            {["Supervisor", "ProjectManager", "OfficePersonel", "Worker"].map((position) => (
+                                                                <option key={position} value={position}>
+                                                                    {position}
+                                                                </option>
+                                                            ))}
+                                                        </select>
                                                     </div>
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
                                                     <div>
-                                                        <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                        <input type="text" className="form-control" id="placeholderInput" placeholder="Placeholder" />
+                                                        <label className="form-label" htmlFor="exampleFormControlInput1">Company</label>
+                                                        <select
+                                                            className="form-select selectinput"
+                                                            name="CompanyName"
+                                                            onChange={handleChange}
+                                                            value={formData.CompanyName}
+                                                            id="exampleFormControlInput1"
+                                                        >
+                                                            <option value="" className="text-dark">Select Company</option>
+                                                            {companyOptions.map((company) => (
+                                                                <option
+                                                                    key={company.id}
+                                                                    value={company.CompanyList}
+                                                                    className="text-dark"
+                                                                >
+                                                                    {company.CompanyList}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+
                                                     </div>
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
                                                     <div>
-                                                        <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                        <input type="text" className="form-control" id="placeholderInput" placeholder="Placeholder" />
+                                                        <label className="form-label" htmlFor="exampleFormControlInput1">Department</label>
+                                                        <select
+                                                            className="form-select selectinput"
+                                                            id="exampleFormControlSelect1"
+                                                            name="Department"
+                                                            onChange={handleChange}
+                                                            value={formData.Department}
+                                                        >
+                                                            <option value="">Select Department</option>
+                                                            {departments.map((dept) => (
+                                                                <option key={dept.id} value={dept.Department}>
+                                                                    {dept.Department}
+                                                                </option>
+                                                            ))}
+                                                        </select>
                                                     </div>
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
                                                     <div>
-                                                        <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                        <input type="text" className="form-control" id="placeholderInput" placeholder="Placeholder" />
+                                                        <label className="form-label" htmlFor="exampleFormControlInput1"> First Name</label>
+                                                        <input type="text" className="form-control input" id="exampleFormControlInput1" placeholder="First Name" name="FirstName" onChange={handleChange} value={formData.First} required />
+
                                                     </div>
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
                                                     <div>
-                                                        <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                        <input type="text" className="form-control" id="placeholderInput" placeholder="Placeholder" />
+                                                        <label className="form-label" htmlFor="exampleFormControlInput1"> Last Name</label>
+                                                        <input type="text" className="form-control input" id="exampleFormControlInput1" placeholder="Last Name" name="LastName" onChange={handleChange} value={formData.LastName} />
                                                     </div>
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
                                                     <div>
-                                                        <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                        <input type="text" className="form-control" id="placeholderInput" placeholder="Placeholder" />
+                                                        <label className="form-label" htmlFor="exampleFormControlInput1">Age</label>
+                                                        <input type="text" className="form-control input" id="exampleFormControlInput1" placeholder="Age" name="Age" onChange={handleChange} value={formData.Age} required />
                                                     </div>
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
                                                     <div>
-                                                        <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                        <input type="text" className="form-control" id="placeholderInput" placeholder="Placeholder" />
-                                                    </div>
+                                                        <label className="form-label" htmlFor="exampleFormControlSelect1">Gender</label>
+                                                        <select className="form-select selectinput" id="exampleFormControlSelect1" name="Gender" onChange={handleChange} value={formData.Gender} >
+                                                            <option>Male</option>
+                                                            <option>Female</option>
+                                                        </select> </div>
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
                                                     <div>
-                                                        <label htmlFor="placeholderInput" className="form-label" > Input with Placeholders </label>
-                                                        <input type="text" className="form-control input-group" id="placeholderInput" placeholder="Placeholder" />
+                                                        <label className="form-label" htmlFor="exampleFormControlInput1">Experience in Year</label>
+                                                        <input type="text" className="form-control input" id="exampleFormControlInput1" placeholder="Experience in Year" name="ExpYear" onChange={handleChange} value={formData.ExpYear} />
                                                     </div>
                                                 </div>
 
 
                                                 <div className="col-xxl-4 col-md-6">
-                                                    <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                    <div className="input-group">
-                                                        <select className="form-select">
-                                                            <option value="">Select an option</option>
-                                                            <option value="Action">Action</option>
-                                                            <option value="Another action">Another action</option>
-                                                            <option value="Something else here">Something else here</option>
-                                                            <option value="Separated link">Separated link</option>
-                                                        </select>
-                                                    </div>
+                                                    <label className="form-label" htmlFor="exampleFormControlInput1">PAN/TAX ID</label>
+                                                    <input type="text" className="form-control input" id="exampleFormControlInput1" placeholder="PAN/TAX ID" name="PanTaxId" onChange={handleChange} value={formData.PanTaxId} />
+
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
-                                                    <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                    <div className="input-group">
-                                                        <select className="form-select">
-                                                            <option value="">Select an option</option>
-                                                            <option value="Action">Action</option>
-                                                            <option value="Another action">Another action</option>
-                                                            <option value="Something else here">Something else here</option>
-                                                            <option value="Separated link">Separated link</option>
-                                                        </select>
-                                                    </div>
+                                                    <label className="form-label" htmlFor="exampleFormControlInput1">Contact Number</label>
+                                                    <input type="text" className="form-control input" id="exampleFormControlInput1" placeholder="Contact Number" name="ContNum" onChange={handleChange} value={formData.ContNum} />
+
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
-                                                    <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                    <div className="input-group">
-                                                        <select className="form-select">
-                                                            <option value="">Select an option</option>
-                                                            <option value="Action">Action</option>
-                                                            <option value="Another action">Another action</option>
-                                                            <option value="Something else here">Something else here</option>
-                                                            <option value="Separated link">Separated link</option>
-                                                        </select>
-                                                    </div>
+                                                    <label className="form-label" htmlFor="exampleFormControlInput1">Emergency Contact Number</label>
+                                                    <input type="text" className="form-control input" id="exampleFormControlInput1" placeholder="Emergency Contact Number" name="EmergencyContNum" onChange={handleChange} value={formData.EmergencyContNum} />
+
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
-                                                    <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                    <div className="input-group">
-                                                        <select className="form-select">
-                                                            <option value="">Select an option</option>
-                                                            <option value="Action">Action</option>
-                                                            <option value="Another action">Another action</option>
-                                                            <option value="Something else here">Something else here</option>
-                                                            <option value="Separated link">Separated link</option>
-                                                        </select>
-                                                    </div>
+                                                    <label className="form-label" htmlFor="exampleFormControlInput1">Bank Account Number</label>
+                                                    <input type="text" className="form-control input" id="exampleFormControlInput1" placeholder="Bank Account Number" name="BankAccNum" onChange={handleChange} value={formData.BankAccNum} />
+
                                                 </div>
                                                 <div class="col-xxl-4 col-md-6">
-                                                    <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
-                                                    <div className="input-group">
-                                                        <select class="form-select " aria-label="Default select example">
-                                                            <option selected>Search for services</option>
-                                                            <option value="1">Information Architecture</option>
-                                                            <option value="2">UI/UX Design</option>
-                                                            <option value="3">Back End Development</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <div className="col-xxl-4 col-md-6">
-                                                    <label htmlFor="placeholderInput" className="form-label" > Input with Placeholder </label>
+                                                    <label className="form-label" htmlFor="placeholderInput">Profile</label>
                                                     <div className="input-group">
                                                         <input
                                                             type="file"
-                                                            className="form-control"
+                                                            className="form-control input"
                                                             id="inputGroupFile02"
+                                                            accept="image/*"
+                                                            name="ProfileImg"
+                                                            ref={fileInputRef}
+                                                            onChange={handleFileChange}
                                                         />
+
+
                                                     </div>
+                                                </div>
+
+                                                <div className="col-xxl-4 col-md-6">
+                                                    <label className="form-label" htmlFor="exampleFormControlSelect1">Select Feilds</label>
+                                                    <button
+                                                        className="btn btn-warning fw-bold mb-1 p-1 rounded px-1 mx-4 "
+                                                        onClick={(e) => {
+                                                            e.preventDefault(); // Prevents the form from submitting
+                                                            setIsOpen(!isOpen);
+                                                        }}
+                                                    >
+                                                        {isOpen ? "Close" : "Open"} Feilds
+                                                    </button>
+
+                                                    {isOpen && (
+                                                        <div className="checkbox-container">
+                                                            {roles.map((role) => (
+                                                                <div key={role} className="checkbox-item">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        className="form-check-input"
+                                                                        id={`role-${role}`}
+                                                                        value={role}
+                                                                        checked={Array.isArray(formData.SelectFeilds) && formData.SelectFeilds.includes(role)}
+                                                                        onChange={() => handleCheckboxChange(role)}
+                                                                    />
+                                                                    <label className="form-check-label" htmlFor={`role-${role}`}>
+                                                                        {role}
+                                                                    </label>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                 </div>
 
 
@@ -185,19 +392,19 @@ function AddWorkerOneRight() {
 
                     <div class="d-flex justify-content-center gap-2 mb-2">
                         <Link to='/addworkerone'>
-                        <div class="slider-button-prev">
-                            <div class="avatar-title fs-18 rounded px-3 material-shadow">
-                                <i class="ri-arrow-left-s-line"></i>
+                            <div class="slider-button-prev">
+                                <div class="avatar-title fs-18 rounded px-3 material-shadow">
+                                    <i class="ri-arrow-left-s-line"></i>
+                                </div>
                             </div>
-                        </div>
                         </Link>
-                        <Link to='/addworkertwo'>
-                        <div class="slider-button-next">
-                            <div class="avatar-title fs-18 rounded px-3 material-shadow">
-                                <i class="ri-arrow-right-s-line"></i>
+                  
+                            <div class="slider-button-next" onClick={handleNext} style={{cursor:'pointer'}}>
+                                <div class="avatar-title fs-18 rounded px-3 material-shadow">
+                                    <i class="ri-arrow-right-s-line"></i>
+                                </div>
                             </div>
-                        </div>
-                        </Link>
+                   
                     </div>
                     {/* <div className="container-fluid">
         <div className="row">

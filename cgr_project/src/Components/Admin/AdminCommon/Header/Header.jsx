@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 
 function Header() {
@@ -228,6 +229,28 @@ function Header() {
           className="dropdown topbar-head-dropdown ms-1 header-item"
           id="notificationDropdown"
         >
+     <Link to='/'>     
+          <button
+            type="button"
+            className="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle"
+            id="page-header-notifications-dropdown"
+            // data-bs-toggle="dropdown"
+            data-bs-auto-close="outside"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+
+        <i className="bx bx-log-out fs-22" />
+        </button>
+        </Link>
+</div>
+
+
+        <div
+          className="dropdown topbar-head-dropdown ms-1 header-item"
+          id="notificationDropdown"
+        >
+          
           <button
             type="button"
             className="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle"
@@ -237,6 +260,7 @@ function Header() {
             aria-haspopup="true"
             aria-expanded="false"
           >
+            
             <i className="bx bx-bell fs-22" />
             <span className="position-absolute topbar-badge fs-10 translate-middle badge rounded-pill bg-danger">
               3<span className="visually-hidden">unread messages</span>

@@ -66,8 +66,6 @@ function WorkerTableRight() {
                             </div>
 
 
-
-
                             <div className="row">
                                 <div className="col-lg-12">
                                     <div className="card">
@@ -80,11 +78,11 @@ function WorkerTableRight() {
                                                 className="table table-bordered dt-responsive nowrap table-striped align-middle"
                                                 style={{ width: "100%" }}
                                             >
-                                                <thead>
+                                                <thead className="bg-light">
                                                     <tr>
                                                         <th data-ordering="false">SR No.</th>
                                                         <th data-ordering="false">ID</th>
-                                                        <th data-ordering="false">Purchase ID</th>
+                                                        <th data-ordering="false">Fin No</th>
                                                         <th data-ordering="false">Title</th>
                                                         <th data-ordering="false">User</th>
                                                         <th>Assigned To</th>

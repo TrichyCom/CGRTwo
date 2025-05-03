@@ -80,6 +80,13 @@ const location = useLocation();
   Worker Table
 </Link>
 
+<Link
+  to='/DynamicValue'
+  className={`nav-link ${location.pathname === '/DynamicValue' ? 'active-sub' : ''}`}
+>
+  Dynamic Value
+</Link>
+
 </li>
 
                     </ul>

@@ -10,8 +10,7 @@ import '../../../../../../../public/assets/css/Admin/Admin.css'
 function AddWorkerThreeRight() {
 
 
-
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     FinNo: "",
     CertificateName: "",
@@ -44,7 +43,8 @@ function AddWorkerThreeRight() {
   // Fetch data function
   const fetchData = () => {
     if (formData.FinNo) {
-      axios.get(`http://localhost:3001/certificates/${formData.FinNo}`)
+      const apiUrl = import.meta.env.VITE_API_URL;
+      axios.get(`${apiUrl}/certificates/${formData.FinNo}`)
         .then((response) => {
           setCertificateData(response.data);
         })
@@ -126,13 +126,71 @@ if (newData.Expiry) {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/certificates/${id}`);
+      const apiUrl = import.meta.env.VITE_API_URL;
+      await axios.delete(`${apiUrl}/certificates/${id}`);
       setCertificateData(certificateData.filter((cert) => cert.Id !== id));
     } catch (error) {
       console.error("Error deleting certificate:", error);
     }
   };
 
+  // const handleSubmit = async (e) => {
+    
+  //   e.preventDefault();
+
+  //   if (!formData.FinNo) {
+  //     alert("Please enter FinNo.");
+  //     return;
+  //   }
+
+  //   // Convert SelectFields array to a string before sending to the backend
+  //   const formattedData = {
+  //     ...formData,
+  //     SelectFields: JSON.stringify(formData.SelectFields),
+  //   };
+
+  //   try {
+  //     const response = await fetch("http://localhost:3001/addworker", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(formattedData),
+  //     });
+
+  //     const result = await response.json();
+  //     console.log(result.message);
+  //     alert("Worker added successfully!");
+  //     localStorage.removeItem("workerData");
+
+  //     localStorage.removeItem("selectedInputNames");
+
+   
+  //     // setFormData({}); // Clear form data
+  //     // setSelectedInputNames([]); // Clear selected names
+
+  //     navigate("/workermngadmin");
+  //     setFormData({
+  //       SelectCourse: "",
+  //       Category: "",
+  //       Levels: "",
+  //       Cert_No: "",
+  //       DOI: "",
+  //       DOE: "",
+  //       BalanceDays: "0",
+  //       SMSE: "",
+  //       WAHA_M: "",
+  //       Rigger: "",
+  //       ssrc_sssrc: "",
+  //       Singnel_Man: "",
+  //       SelectFields: [],
+  //     });
+
+
+  //   } catch (error) {
+  //     console.error("Error submitting form:", error);
+  //   }
+  // };
 
 
 
@@ -201,7 +259,8 @@ if (newData.Expiry) {
     formDataToSend.append("data", JSON.stringify(allWorkerData));
   
     try {
-      const res = await axios.post("http://localhost:3001/addworker", formDataToSend, {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const res = await axios.post(`${apiUrl}/addworker`, formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -273,7 +332,8 @@ if (newData.Expiry) {
     }
 
     try {
-      await axios.post("http://localhost:3001/certificates", formDataToSend, {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      await axios.post(`${apiUrl}/certificates`, formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -340,7 +400,45 @@ if (newData.Expiry) {
 
 
   
+  
 
+  // const UploadEducation = async (e) => {
+  //   e.preventDefault();
+  
+  //   console.log("Current formDataeducation:", formDataeducation); // Debugging
+  
+  //   if (!formDataeducation.FinNo) {
+  //     alert("FinNo is missing. Please check the stored data.");
+  //     return;
+  //   }
+  
+  //   if (!formDataeducation.Education || !selectedFile) {
+  //     alert("Please enter FinNo, select an education level, and upload a file.");
+  //     return;
+  //   }
+  
+  //   const formDataToSend = new FormData();
+  //   formDataToSend.append("FinNo", formDataeducation.FinNo);
+  //   formDataToSend.append("Education", formDataeducation.Education);
+  //   formDataToSend.append("EducationFile", selectedFile);
+  
+  //   console.log("Uploading Education with FinNo:", formDataeducation.FinNo); // Debugging
+  
+  //   try {
+  //     const response = await axios.post(
+  //       "http://localhost:3001/upload-education",
+  //       formDataToSend,
+  //       {
+  //         headers: { "Content-Type": "multipart/form-data" },
+  //       }
+  //     );
+  //     alert(response.data.message);
+  //     fetchDataeducation(); // Refresh data after upload
+  //   } catch (error) {
+  //     console.error("Error uploading education data:", error);
+  //     alert("Failed to upload education data.");
+  //   }
+  // };
   
   // Ensure FinNo is set correctly from localStorage
   useEffect(() => {
@@ -383,7 +481,8 @@ useEffect(() => {
 
 const fetchEducationData = async (finNo) => {
   try {
-    const response = await axios.get(`http://localhost:3001/education/${finNo}`);
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const response = await axios.get(`${apiUrl}/education/${finNo}`);
     setEducation(response.data);
   } catch (error) {
     console.error("Error fetching education data:", error);
@@ -411,8 +510,9 @@ const UploadEducation = async (e) => {
   formDataToSend.append("EducationFile", selectedFile);
 
   try {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const response = await axios.post(
-      "http://localhost:3001/upload-education",
+      `${apiUrl}/upload-education`,
       formDataToSend,
       { headers: { "Content-Type": "multipart/form-data" } }
     );
@@ -439,7 +539,8 @@ const UploadEducation = async (e) => {
     // if (!window.confirm("Are you sure you want to delete this record?")) return;
 
     try {
-      await axios.delete(`http://localhost:3001/education/${id}`);
+      const apiUrl = import.meta.env.VITE_API_URL;
+      await axios.delete(`${apiUrl}/education/${id}`);
       setEducation(education.filter((edu) => edu.Id !== id));
       // alert("Education record deleted successfully!");
       setTopAlert({ show: true, message: "Education record deleted successfully!" });
@@ -458,7 +559,8 @@ useEffect(() => {
 
 const fetchCertificates = async () => {
   try {
-    const response = await axios.get("http://localhost:3001/getcertificates");
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const response = await axios.get(`${apiUrl}/getcertificates`);
     setCertificates(response.data); // Store fetched data in state
   } catch (error) {
     console.error("Error fetching certificates:", error);
@@ -469,10 +571,13 @@ const fetchCertificates = async () => {
 
 
 
+
+
+
     return (
         <>
             <div className="main-content">
-                <div className="page-content">
+                <div className="page-content pb-2">
                     <div className="container-fluid">
                         {/* start page title */}
                         <div className="row">
@@ -863,7 +968,7 @@ const fetchCertificates = async () => {
 
                 </div>
 
-                <footer className="footer">
+                <footer className="foote">
 
                     <div class="d-flex justify-content-center gap-2 mb-2">
                        

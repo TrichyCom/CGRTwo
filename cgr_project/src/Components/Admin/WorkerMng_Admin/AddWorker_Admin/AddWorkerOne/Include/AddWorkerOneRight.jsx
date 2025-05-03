@@ -4,167 +4,208 @@ import axios from "axios";
 
 function AddWorkerOneRight() {
 
+    const navigate = useNavigate();
+    // const roles = ["Electrician", "Plumber", "Welder", "Steel Fixer", "Painter"]; 
+    const [roles, setRoles] = useState([]); // Store fetched roles
+  
+    // Fetch roles from feilds table
+    useEffect(() => {
+      fetchRoles();
+    }, []);
+  
+    const fetchRoles = async () => {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      try {
+        const response = await axios.get(`${apiUrl}/feilds`); // Replace with your API URL
+        const roleNames = response.data.map((item) => item.Feilds); // Extract Feilds column
+        setRoles(roleNames);
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+      }
+    };
+  
+    const [formData, setFormData] = useState({
+      EmpId: "",
+      EmpPosition: "",
+      CompanyName: "",
+      Department: "",
+      FirstName: "",
+      LastName: "",
+      SelectSupervisor: "",
+      Age: "",
+      ExpYear: "",
+      Gender: "Male",
+      ContNum: "",
+      EmergencyContNum: "",
+      BankAccNum: "",
+      SelectFeilds: [],
+      PanTaxId: "",
+      SelectRole: "",
+    });
+  
+    // Load stored data
+    // useEffect(() => {
+    //   const storedData = JSON.parse(localStorage.getItem("workerData")) || {};
+    //   setFormData((prevData) => ({
+    //     ...prevData,
+    //     ...storedData,
+    //     SelectFields: storedData.SelectFields || [], // Ensure it's an array
+    //   }));
+    // }, []);
+  
+    // Handle input change
+    // const handleChange = (e) => {
+    //   setFormData({ ...formData, [e.target.name]: e.target.value });
+    // };
+  
+    // Handle checkbox selection
+    // const handleCheckboxChange = (role) => {
+    //   setFormData((prevData) => ({
+    //     ...prevData,
+    //     SelectFields: prevData.SelectFields.includes(role)
+    //       ? prevData.SelectFields.filter((r) => r !== role) // Remove if already selected
+    //       : [...prevData.SelectFields, role], // Add if not selected
+    //   }));
+    // };
+  
+    // const handleCheckboxChange = (role) => {
+    //   setFormData((prevData) => ({
+    //     ...prevData,
+    //     SelectFeilds: prevData.SelectFeilds.includes(role)
+    //       ? prevData.SelectFeilds.filter((r) => r !== role) // Remove if already selected
+    //       : [...prevData.SelectFeilds, role], // Add if not selected
+    //   }));
+    // };
+  
+    const handleRoleChange = (e) => {
+      const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
+      setFormData((prevData) => ({
+        ...prevData,
+        SelectFeilds: selectedOptions,
+      }));
+    };
+  
+  
+  
+    // Handle navigation to next form
+    const handleNext = () => {
+      localStorage.setItem("workerData", JSON.stringify(formData));
+      navigate("/addworkertwo");
+    };
+  
+  
+  
+  
+  
+  
+  
+  
+    const [isOpen, setIsOpen] = useState(false); // State to handle toggle
+  
+    useEffect(() => {
+      const storedData = JSON.parse(localStorage.getItem("workerData")) || {};
+      setFormData((prevData) => ({
+        ...prevData,
+        ...storedData,
+        SelectFields: storedData.SelectFields || [],
+      }));
+    }, []);
+  
+    const handleChange = (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+  
+    const handleCheckboxChange = (role) => {
+      setFormData((prevData) => ({
+        ...prevData,
+        SelectFeilds: prevData.SelectFeilds.includes(role)
+          ? prevData.SelectFeilds.filter((r) => r !== role)
+          : [...prevData.SelectFeilds, role],
+      }));
+    };
+  
+    // const handleNext = () => {
+    //   localStorage.setItem("workerData", JSON.stringify(formData));
+    //   navigate("/addworkerformtwomain");
+    // };
+  
+  
+  
+    // add role
+    const [roless, setRoless] = useState([]); // Store roles from DB
+  
+    useEffect(() => {
+      fetchRoless(); // Fetch roles on component load
+    }, []);
+  
+    // Fetch roles from the database
+    const fetchRoless = async () => {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      try {
+        const response = await axios.get(`${apiUrl}/roles`); // Replace with your API URL
+        setRoless(response.data);
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+      }
+    };
+  
+  
+  
+  
+    // department
+    const [departments, setDepartments] = useState([]);
+  
+    useEffect(() => {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      axios
+        .get(`${apiUrl}/departments`) // Update the API endpoint based on your backend route
+        .then((response) => {
+          setDepartments(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching departments:", error);
+        });
+    }, []);
+  
+  
+  
+     const fileInputRef = useRef(null); // Reference for file input
+     const [selectedFile, setSelectedFile] = useState(null);
+     const previewImg = localStorage.getItem("workerProfileImg");
+  
+  
+     const handleFileChange = (e) => {
+       const file = e.target.files[0];
+       if (file) {
+         const reader = new FileReader();
+         reader.onloadend = () => {
+           localStorage.setItem("workerProfileImg", reader.result); // base64 string
+           setSelectedFile(file); // save file in state for later use
+         };
+         reader.readAsDataURL(file); // convert to base64
+       }
+     };
+  
+  
+  
+  
+  
+  
+  
+     const [companyOptions, setCompanyOptions] = useState([]);
+  
+     useEffect(() => {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      axios.get(`${apiUrl}/getCompanies`)
+        .then((res) => setCompanyOptions(res.data))
+        .catch((err) => console.error(err));
+    }, []);
     
-
-  const navigate = useNavigate();
-  // const roles = ["Electrician", "Plumber", "Welder", "Steel Fixer", "Painter"]; 
-  const [roles, setRoles] = useState([]); // Store fetched roles
-
-  // Fetch roles from feilds table
-  useEffect(() => {
-    fetchRoles();
-  }, []);
-
-  const fetchRoles = async () => {
-    try {
-      const response = await axios.get("http://localhost:3001/feilds"); // Replace with your API URL
-      const roleNames = response.data.map((item) => item.Feilds); // Extract Feilds column
-      setRoles(roleNames);
-    } catch (error) {
-      console.error("Error fetching roles:", error);
-    }
-  };
-
-  const [formData, setFormData] = useState({
-    EmpId: "",
-    EmpPosition: "",
-    CompanyName: "",
-    Department: "",
-    FirstName: "",
-    LastName: "",
-    Age: "",
-    ExpYear: "",
-    Gender: "Male",
-    ContNum: "",
-    EmergencyContNum: "",
-    BankAccNum: "",
-    SelectFeilds: [],
-    PanTaxId: "",
-    SelectRole: "",
-  });
-
-
-
-  const handleRoleChange = (e) => {
-    const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
-    setFormData((prevData) => ({
-      ...prevData,
-      SelectFeilds: selectedOptions,
-    }));
-  };
-
-
-
-  // Handle navigation to next form
-  const handleNext = () => {
-    localStorage.setItem("workerData", JSON.stringify(formData));
-    navigate("/addworkertwo");
-  };
-
-
-
-
-
-
-
-
-  const [isOpen, setIsOpen] = useState(false); // State to handle toggle
-
-  useEffect(() => {
-    const storedData = JSON.parse(localStorage.getItem("workerData")) || {};
-    setFormData((prevData) => ({
-      ...prevData,
-      ...storedData,
-      SelectFields: storedData.SelectFields || [],
-    }));
-  }, []);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleCheckboxChange = (role) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      SelectFeilds: prevData.SelectFeilds.includes(role)
-        ? prevData.SelectFeilds.filter((r) => r !== role)
-        : [...prevData.SelectFeilds, role],
-    }));
-  };
-
-
-
-
-  // add role
-  const [roless, setRoless] = useState([]); // Store roles from DB
-
-  useEffect(() => {
-    fetchRoless(); // Fetch roles on component load
-  }, []);
-
-  // Fetch roles from the database
-  const fetchRoless = async () => {
-    try {
-      const response = await axios.get("http://localhost:3001/roles"); // Replace with your API URL
-      setRoless(response.data);
-    } catch (error) {
-      console.error("Error fetching roles:", error);
-    }
-  };
-
-
-
-
-  // department
-  const [departments, setDepartments] = useState([]);
-
-  useEffect(() => {
-    axios
-      .get("http://localhost:3001/departments") // Update the API endpoint based on your backend route
-      .then((response) => {
-        setDepartments(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching departments:", error);
-      });
-  }, []);
-
-
-
-   const fileInputRef = useRef(null); // Reference for file input
-   const [selectedFile, setSelectedFile] = useState(null);
-   const previewImg = localStorage.getItem("workerProfileImg");
-
-
-   const handleFileChange = (e) => {
-     const file = e.target.files[0];
-     if (file) {
-       const reader = new FileReader();
-       reader.onloadend = () => {
-         localStorage.setItem("workerProfileImg", reader.result); // base64 string
-         setSelectedFile(file); // save file in state for later use
-       };
-       reader.readAsDataURL(file); // convert to base64
-     }
-   };
-
-
-
-
-
-
-
-   const [companyOptions, setCompanyOptions] = useState([]);
-
-   useEffect(() => {
-    axios.get("http://localhost:3001/getCompanies")
-      .then((res) => setCompanyOptions(res.data))
-      .catch((err) => console.error(err));
-  }, []);
+     
     return (
         <>
             <div className="main-content">
-                <div className="page-content">
+                <div className="page-content pb-2">
                     <div className="container-fluid">
                         {/* start page title */}
                         <div className="row">
@@ -266,17 +307,31 @@ function AddWorkerOneRight() {
                                                     </div>
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
+                                                    <div className="row">
+                                                    <div className="col-xxl-6 col-md-6">
                                                     <div>
                                                         <label className="form-label" htmlFor="exampleFormControlInput1"> First Name</label>
                                                         <input type="text" className="form-control input" id="exampleFormControlInput1" placeholder="First Name" name="FirstName" onChange={handleChange} value={formData.First} required />
 
                                                     </div>
-                                                </div>
-                                                <div className="col-xxl-4 col-md-6">
+                                                    </div>
+                                                    <div className="col-xxl-6 col-md-6">
                                                     <div>
                                                         <label className="form-label" htmlFor="exampleFormControlInput1"> Last Name</label>
                                                         <input type="text" className="form-control input" id="exampleFormControlInput1" placeholder="Last Name" name="LastName" onChange={handleChange} value={formData.LastName} />
                                                     </div>
+                                                    </div>
+                                                    </div>
+                                               
+                                                </div>
+                                                <div className="col-xxl-4 col-md-6">
+                                                <div>
+                                                        <label className="form-label" htmlFor="exampleFormControlSelect1">Select Supervisor</label>
+                                                        <select className="form-select selectinput" id="exampleFormControlSelect1" name="SelectSupervisor" onChange={handleChange} value={formData.SelectSupervisor} >
+                                                            <option>name 1</option>
+                                                            <option>name 2</option>
+                                                        </select> 
+                                                        </div>
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
                                                     <div>
@@ -290,7 +345,8 @@ function AddWorkerOneRight() {
                                                         <select className="form-select selectinput" id="exampleFormControlSelect1" name="Gender" onChange={handleChange} value={formData.Gender} >
                                                             <option>Male</option>
                                                             <option>Female</option>
-                                                        </select> </div>
+                                                        </select> 
+                                                        </div>
                                                 </div>
                                                 <div className="col-xxl-4 col-md-6">
                                                     <div>
@@ -388,7 +444,7 @@ function AddWorkerOneRight() {
 
                 </div>
 
-                <footer className="footer">
+                <footer className="foote pt-1">
 
                     <div class="d-flex justify-content-center gap-2 mb-2">
                         <Link to='/addworkerone'>

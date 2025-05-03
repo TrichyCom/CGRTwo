@@ -3,198 +3,200 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios"; 
 function AddWorkerTwoRight() {
 
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-      FinNo: "",
-      DOA: "",  
-      DOB: "",
-      DOI: "",
-      DOE: "",
-      DO_ThumbPrint: "",
-      DO_Onboard: "",
-      DO_Renewal: "",
-      WP_No: "",
-      WP_Expiry: "",
-      PP_No: "",
-      PP_Expiry: "",
-      IPA: "",
-      Passport: "",
-      Bond: "",
-      Onboard: "",
-      Medical: "",
-      Issuance: "",
-      MOMThumbPrint: "",
-      IC: "",
-      Contract: "",
-    });
-  
-  
-    const [files, setFiles] = useState({});
-   const [selectedFile, setSelectedFile] = useState(null);
-   const fileInputRef = useRef(null); // Reference for file input
-   const [selectedInputNames, setSelectedInputNames] = useState([]); // Store selected input names
-  
-    // Load selected input names from localStorage when the component is mounted
-    useEffect(() => {
-      const storedInputNames = JSON.parse(localStorage.getItem("selectedInputNames"));
-      if (storedInputNames) {
-        setSelectedInputNames(storedInputNames); // Set the state with the stored names
-      }
-    }, []);
-  
-  
-    const handleFileChange = (e) => {
-      const { name } = e.target;
-      const file = e.target.files[0]; // Get the selected file
-      setFiles((prevFiles) => ({
-        ...prevFiles,
-        [name]: file,
-      }));
-      setSelectedFile(e.target.files[0]);
-      setSelectedFile(file);
-  
-      if (file) {
-        // Store input name if a file is selected
-        const inputName = e.target.name;
-        setSelectedInputNames((prevNames) => {
-          const updatedNames = [...prevNames, inputName];
-          localStorage.setItem("selectedInputNames", JSON.stringify(updatedNames)); 
-          return updatedNames;
-        });
-      }
-    };
-  
-    const formDataToSend = new FormData();
-  Object.keys(formData).forEach((key) => {
-    if (formData[key]) formDataToSend.append(key, formData[key]);
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    FinNo: "",
+    DOA: "",  
+    DOB: "",
+    DOI: "",
+    DOE: "",
+    DO_ThumbPrint: "",
+    DO_Onboard: "",
+    DO_Renewal: "",
+    WP_No: "",
+    WP_Expiry: "",
+    PP_No: "",
+    PP_Expiry: "",
+    IPA: "",
+    Passport: "",
+    Bond: "",
+    Onboard: "",
+    Medical: "",
+    Issuance: "",
+    MOMThumbPrint: "",
+    IC: "",
+    Contract: "",
   });
+
+
+  const [files, setFiles] = useState({});
+ const [selectedFile, setSelectedFile] = useState(null);
+ const fileInputRef = useRef(null); // Reference for file input
+ const [selectedInputNames, setSelectedInputNames] = useState([]); // Store selected input names
+
+  // Load selected input names from localStorage when the component is mounted
+  useEffect(() => {
+    const storedInputNames = JSON.parse(localStorage.getItem("selectedInputNames"));
+    if (storedInputNames) {
+      setSelectedInputNames(storedInputNames); // Set the state with the stored names
+    }
+  }, []);
+
+
+  const handleFileChange = (e) => {
+    const { name } = e.target;
+    const file = e.target.files[0]; // Get the selected file
+    setFiles((prevFiles) => ({
+      ...prevFiles,
+      [name]: file,
+    }));
+    setSelectedFile(e.target.files[0]);
+    setSelectedFile(file);
+
+    if (file) {
+      // Store input name if a file is selected
+      const inputName = e.target.name;
+      setSelectedInputNames((prevNames) => {
+        const updatedNames = [...prevNames, inputName];
+        localStorage.setItem("selectedInputNames", JSON.stringify(updatedNames)); 
+        return updatedNames;
+      });
+    }
+  };
+
+  const formDataToSend = new FormData();
+Object.keys(formData).forEach((key) => {
+  if (formData[key]) formDataToSend.append(key, formData[key]);
+});
+
+Object.keys(files).forEach((key) => {
+  if (files[key]) formDataToSend.append(key, files[key]);
+});
+
+
+
+
+// const handleSubmit = () => {
+//   if (!selectedFile) {
+//     alert("Please select a file before uploading.");
+//     return;
+//   }
+//   console.log("Uploading:", selectedFile);
+//   // Handle upload logic here
+// };
+
+
+
+const [topAlert, setTopAlert] = useState({ show: false, message: "" });
+
+    // Handle form submission
+    const handleSubmit = async (e) => {
+      e.preventDefault();
   
-  Object.keys(files).forEach((key) => {
-    if (files[key]) formDataToSend.append(key, files[key]);
-  });
+      if (!formData.FinNo.trim()) {
+        alert("Please enter FinNo.");
+        return;
+      }
+      if (!selectedFile) {
+        alert("Please select a file before uploading.");
+        return;
+      }
+ 
+      const formDataToSend = new FormData();
+      formDataToSend.append("FinNo", formData.FinNo); // Include FinNo
   
+      Object.keys(files).forEach((key) => {
+          formDataToSend.append(key, files[key]); // Append files
+      });
   
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL;
+          const response = await axios.post(
+              `${apiUrl}/workerreportfiles`,
+              formDataToSend,
+              { headers: { "Content-Type": "multipart/form-data" } }
+          );
   
+          console.log("Data saved:", response.data);
+          // alert("Worker Report Files Uploaded Successfully");
+          setTopAlert({ show: true, message: "Worker Report Files Uploaded Successfully" });
+          setTimeout(() => setTopAlert({ show: false, message: "" }), 2000);
   
-  // const handleSubmit = () => {
-  //   if (!selectedFile) {
-  //     alert("Please select a file before uploading.");
-  //     return;
-  //   }
-  //   console.log("Uploading:", selectedFile);
-  //   // Handle upload logic here
-  // };
-  
-  
-  
-  const [topAlert, setTopAlert] = useState({ show: false, message: "" });
-  
-      // Handle form submission
-      const handleSubmit = async (e) => {
-        e.preventDefault();
-    
-        if (!formData.FinNo.trim()) {
-          alert("Please enter FinNo.");
-          return;
-        }
-        if (!selectedFile) {
-          alert("Please select a file before uploading.");
-          return;
-        }
-   
-        const formDataToSend = new FormData();
-        formDataToSend.append("FinNo", formData.FinNo); // Include FinNo
-    
-        Object.keys(files).forEach((key) => {
-            formDataToSend.append(key, files[key]); // Append files
-        });
-    
-        try {
-            const response = await axios.post(
-                "http://localhost:3001/workerreportfiles",
-                formDataToSend,
-                { headers: { "Content-Type": "multipart/form-data" } }
-            );
-    
-            console.log("Data saved:", response.data);
-            // alert("Worker Report Files Uploaded Successfully");
-            setTopAlert({ show: true, message: "Worker Report Files Uploaded Successfully" });
-            setTimeout(() => setTopAlert({ show: false, message: "" }), 2000);
-    
-            // Store in localStorage
-            localStorage.setItem("workerData", JSON.stringify(response.data));
-            
-                  // Reset input fields
-        setSelectedFile(null);
-        
-     
+          // Store in localStorage
+          localStorage.setItem("workerData", JSON.stringify(response.data));
+          
+                // Reset input fields
+      setSelectedFile(null);
       
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ""; // Clears file input field
+   
+    
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Clears file input field
+    }
+      } catch (error) {
+          console.error("Error submitting form:", error);
       }
-        } catch (error) {
-            console.error("Error submitting form:", error);
-        }
-    };
-    
+  };
   
-    // const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // Excluding 'I' and 'O'
+
+  // const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // Excluding 'I' and 'O'
+
+  // Function to generate Fin No
+  // const generateFinNo = () => {
+  //   const firstLetter = letters.charAt(Math.floor(Math.random() * letters.length));
+  //   const numbers = Math.floor(1000000 + Math.random() * 9000000); // 7-digit number
+  //   const lastLetter = letters.charAt(Math.floor(Math.random() * letters.length));
+  //   return `${firstLetter}${numbers}${lastLetter}`;
+  // };
+
+
+
+
+  useEffect(() => {
+    const storedData = JSON.parse(localStorage.getItem("workerData")) || {};
+    // if (!formData.FinNo) {
+    //   formData.FinNo = generateFinNo();
+    // }
+    setFormData((prevData) => ({
+      ...prevData,
+      ...storedData,
+      // FinNo: storedData.FinNo || generateFinNo(), // Set FinNo only if not already stored
+    }));
+  }, []);
+
+
   
-    // Function to generate Fin No
-    // const generateFinNo = () => {
-    //   const firstLetter = letters.charAt(Math.floor(Math.random() * letters.length));
-    //   const numbers = Math.floor(1000000 + Math.random() * 9000000); // 7-digit number
-    //   const lastLetter = letters.charAt(Math.floor(Math.random() * letters.length));
-    //   return `${firstLetter}${numbers}${lastLetter}`;
-    // };
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   
+
+
+
+  const handleNext = () => {
+    // Auto-generate FinNo if it's empty
+    // if (!formData.FinNo) {
+    //   formData.FinNo = generateFinNo();
+    // }
+    localStorage.setItem("workerData", JSON.stringify(formData));
+    navigate("/addworkerthree");
+  };
   
-  
-  
-    useEffect(() => {
-      const storedData = JSON.parse(localStorage.getItem("workerData")) || {};
-      // if (!formData.FinNo) {
-      //   formData.FinNo = generateFinNo();
-      // }
-      setFormData((prevData) => ({
-        ...prevData,
-        ...storedData,
-        // FinNo: storedData.FinNo || generateFinNo(), // Set FinNo only if not already stored
-      }));
-    }, []);
-  
-  
-    
-    const handleChange = (e) => {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-  
-    
-  
-  
-  
-    const handleNext = () => {
-      // Auto-generate FinNo if it's empty
-      // if (!formData.FinNo) {
-      //   formData.FinNo = generateFinNo();
-      // }
-      localStorage.setItem("workerData", JSON.stringify(formData));
-      navigate("/addworkerthree");
-    };
-    
-    const handlePre = () => {
-      // Auto-generate FinNo if it's empty
-      // if (!formData.FinNo) {
-      //   formData.FinNo = generateFinNo();
-      // }
-      localStorage.setItem("workerData", JSON.stringify(formData));
-      navigate("/addworkerone");
-    };
+  const handlePre = () => {
+    // Auto-generate FinNo if it's empty
+    // if (!formData.FinNo) {
+    //   formData.FinNo = generateFinNo();
+    // }
+    localStorage.setItem("workerData", JSON.stringify(formData));
+    navigate("/addworkerone");
+  };
+
   
     return (
         <>
             <div className="main-content">
-                <div className="page-content">
+                <div className="page-content pb-2">
                     <div className="container-fluid">
                         {/* start page title */}
                         <div className="row">
@@ -443,7 +445,15 @@ function AddWorkerTwoRight() {
 
                 </div>
 
-                <footer className="footer">
+{/* top alart message */}
+{topAlert.show && (
+  <div className="top-alert">
+    <span>{topAlert.message}</span>
+  </div>
+)}
+
+
+                <footer className="foote">
 
                     <div class="d-flex justify-content-center gap-2 mb-2">
                        

@@ -1,494 +1,348 @@
-import React from "react";
-import { Link } from "react-router-dom";
-
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Icon } from "@iconify/react";
+import axios from "axios";
 function WorkerTableRight() {
-    return (
-        <>
-            {/* <!-- Begin page --> */}
-            <div id="layout-wrapper">
-                <div class="main-content">
 
-                    <div class="page-content">
-                        <div class="container-fluid">
+  const [workers, setWorkers] = useState([]);
 
-                            {/* <!-- start page title --> */}
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                                        <h4 class="mb-sm-0">Workers Data</h4>
+  const navigate = useNavigate();
+  // axios
+  // .get("http://localhost:3001/workers")
+  useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    axios
+      .get(`${apiUrl}/workers`)
+      .then((response) => {
+        setWorkers(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching worker data:", error);
+      });
+  }, []);
 
-                                        <div class="page-title-right">
-                                            <ol class="breadcrumb m-0">
-                                                <li class="breadcrumb-item"><a href="javascript: void(0);">Workers</a></li>
-                                                <li class="breadcrumb-item active">Data</li>
-                                            </ol>
-                                        </div>
+  const handleView = (finNo) => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    axios
+      .get(`${apiUrl}/workers/${finNo}`)
+      .then((response) => {
+        navigate("/viewworker", { state: { worker: response.data } });
+      })
+      .catch((error) => {
+        console.error("Error fetching worker details:", error);
+      });
+  };
 
-                                    </div>
+  // filter empid
+  const [empIdFilter, setEmpIdFilter] = useState("");
+  const [formData, setFormData] = useState({ EmpPosition: "" });
+  const [empNameFilter, setEmpNameFilter] = useState("");
+  const [genderFilter, setGenderFilter] = useState("");
+
+
+  const filteredWorkers = workers.filter((worker) => {
+
+    const matchesPosition =
+      formData.EmpPosition === "" ||
+      worker.EmpPosition.toLowerCase() === formData.EmpPosition.toLowerCase();
+
+    const matchesEmpId =
+      empIdFilter === "" || worker.EmpId.toLowerCase().includes(empIdFilter.toLowerCase());
+
+    const fullName = `${worker.FirstName} ${worker.LastName}`.toLowerCase();
+    const matchesName =
+      empNameFilter === "" || fullName.includes(empNameFilter.toLowerCase());
+
+    const matchesGender =
+      genderFilter === "" || worker.Gender === genderFilter;
+
+    return matchesPosition && matchesEmpId && matchesName && matchesGender;
+  });
+
+
+
+  useEffect(() => {
+    console.log("Selected Position:", formData.EmpPosition);
+  }, [formData.EmpPosition]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+
+  return (
+    <>
+      {/* <!-- Begin page --> */}
+      <div id="layout-wrapper">
+        <div class="main-content">
+
+          <div class="page-content">
+            <div class="container-fluid">
+
+              {/* <!-- start page title --> */}
+              <div class="row">
+                <div class="col-12">
+                  <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                    <h4 class="mb-sm-0">Workers Data</h4>
+
+                    <div class="page-title-right">
+                      <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">Workers</a></li>
+                        <li class="breadcrumb-item active">Data</li>
+                      </ol>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+
+
+              <div className="row">
+                <div className="col-lg-12">
+                  <div className="card card-animate overflow-hidden">
+              
+                    <div className="card-body">
+                      <div className="row">
+                        <div class="col-xxl-2 col-md-6">
+                          <div>
+                            {/* <label for="exampleInputrounded" class="form-label">Filter Input</label>
+                                                    <input type="text" class="form-control rounded-pill" id="exampleInputrounded" placeholder="Enter your name" /> */}
+                            <label className="form-label" htmlFor="exampleInputrounded">Filter by Emp ID</label>
+                            <input type="text" class="form-control rounded-pill" id="exampleInputrounded" placeholder="Emp ID" value={empIdFilter} onChange={(e) => setEmpIdFilter(e.target.value)} />
+
+                          </div>
+                        </div>
+                        <div class="col-xxl-2 col-md-6">
+                          <div>
+                            <label className="form-label" htmlFor="exampleFormControlInput1">Filter by Emp Name</label>
+                            <input
+                              type="text"
+                              className="form-control rounded-pill"
+                              placeholder="Emp Name"
+                              value={empNameFilter}
+                              onChange={(e) => setEmpNameFilter(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div class="col-xxl-2 col-md-6">
+                          <div>
+                            {/* <label for="exampleInputrounded" class="form-label">Filter Input</label>
+                                                    <input type="text" class="form-control rounded-pill" id="exampleInputrounded" placeholder="Enter your name" /> */}
+
+                            <label className="form-label" htmlFor="exampleFormControlInput1">Filter by Emp Position</label>
+                            <select
+                              className="form-select form-control rounded-pill"
+                              name="EmpPosition"
+                              value={formData.EmpPosition}
+                              onChange={handleChange}
+                            >
+                              <option value="">Select Position</option>
+                              {["Supervisor", "ProjectManager", "OfficePersonel", "Worker"].map((position) => (
+                                <option key={position} value={position}>
+                                  {position}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+
+                        <div class="col-xxl-2 col-md-6 my-auto">
+                          <div className="">
+                          <button class="btn btn-danger material-shadow-none"  onClick={() => {
+    setFormData((prev) => ({ ...prev, EmpPosition: "" }));
+    setEmpIdFilter("");
+    setEmpNameFilter(""); // assuming you have this state
+    setGenderFilter("");
+  }}><i class="ri-filter-2-line me-1 align-bottom"></i>Clear Filters</button>
+                          </div>
+                          </div>
+                        <div class="col-xxl-1 col-md-6">
+                          <div className="">
+
+                          </div>
+                          </div>
+
+                        <div class="col-xxl-3 col-md-6">
+                          <div>
+                            {/* <label for="exampleInputrounded" class="form-label">Filter Input</label>
+                                                    <input type="text" class="form-control rounded-pill" id="exampleInputrounded" placeholder="Enter your name" /> */}
+
+                            <div className="card card-animate overflow-hidden m-0 border">
+                              <div className="position-absolute start-0" style={{ zIndex: 0 }}>
+                                <svg
+                                  version="1.2"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 200 120"
+                                  width={200}
+                                  height={120}
+                                  className=""
+                                >
+                                  <style
+                                    dangerouslySetInnerHTML={{
+                                      __html:
+                                        "\n.s0 {\n  opacity:.11;\n fill: var(--vz-success)\n  }\n  "
+                                    
+                                    }}
+                                  />
+                                  <path
+                                    id="Shape 8"
+                                    className="s0"
+                                    d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z"
+                                  />
+                                </svg>
+                              </div>
+                              <div className="card-body" style={{ zIndex: 1 }}>
+                                <div className="d-flex align-items-center">
+                                  <div className="flex-grow-1 overflow-hidden">
+                                    <p className="text-uppercase fw-medium text-muted text-truncate mb-3">
+                                      {" "}
+                                      Total Workers
+                                    </p>
+                                    <h4 className="fs-22 fw-semibold ff-secondary mb-0">
+                                      <span className="counter-value" data-target={36894}>
+                                      {filteredWorkers.length}
+                                      </span>
+                                    </h4>
+                                  </div>
+                                  <div className="flex-shrink-0">
+                                    <div
+                                      id="total_jobs"
+                                      data-colors='["--vz-success"]'
+                                      className="apex-charts"
+                                      dir="ltr"
+                                    />
+                                  </div>
                                 </div>
+                              </div>
+                              {/* end card body */}
                             </div>
+                            {/* end card */}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
 
-
-                            <div className="row">
-                                <div className="col-lg-12">
-                                    <div className="card">
-                                        <div className="card-body">
-<div className="row">
-                                                <div class="col-xxl-3 col-md-6">
-                                                <div>
-                                                    <label for="exampleInputrounded" class="form-label">Filter Input</label>
-                                                    <input type="text" class="form-control rounded-pill" id="exampleInputrounded" placeholder="Enter your name" />
-                                                </div>
-                                            </div>
-                                            <div class="col-xxl-3 col-md-6">
-                                                <div>
-                                                    <label for="exampleInputrounded" class="form-label">Filter Input</label>
-                                                    <input type="text" class="form-control rounded-pill" id="exampleInputrounded" placeholder="Enter your name" />
-                                                </div>
-                                            </div>
-                                            <div class="col-xxl-3 col-md-6">
-                                                <div>
-                                                    <label for="exampleInputrounded" class="form-label">Filter Input</label>
-                                                    <input type="text" class="form-control rounded-pill" id="exampleInputrounded" placeholder="Enter your name" />
-                                                </div>
-                                            </div>
-                                            <div class="col-xxl-3 col-md-6">
-                                                <div>
-                                                    <label for="exampleInputrounded" class="form-label">Filter Input</label>
-                                                    <input type="text" class="form-control rounded-pill" id="exampleInputrounded" placeholder="Enter your name" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            </div>
-
-
-                            <div className="row">
-                                <div className="col-lg-12">
-                                    <div className="card">
-                                        {/* <div className="card-header">
+              <div className="row">
+                <div className="col-lg-12">
+                  <div className="card">
+                    {/* <div className="card-header">
                                             <h5 className="card-title mb-0">Workers Data</h5>
                                         </div> */}
-                                        <div className="card-body">
-                                            <table
-                                                id="example"
-                                                className="table table-bordered dt-responsive nowrap table-striped align-middle"
-                                                style={{ width: "100%" }}
-                                            >
-                                                <thead className="bg-light">
-                                                    <tr>
-                                                        <th data-ordering="false">SR No.</th>
-                                                        <th data-ordering="false">ID</th>
-                                                        <th data-ordering="false">Fin No</th>
-                                                        <th data-ordering="false">Title</th>
-                                                        <th data-ordering="false">User</th>
-                                                        <th>Assigned To</th>
+                    <div className="card-body">
+                      <table
+                        id="example"
+                        className="table table-bordered dt-responsive nowrap table-striped align-middle"
+                        style={{ width: "100%" }}
+                      >
+                        <thead className="bg-light">
+                          <tr>
+                            <th data-ordering="false">No.</th>
+                            <th data-ordering="false">Emp ID</th>
+                            <th data-ordering="false">Emp Position</th>
+                            <th data-ordering="false">Name</th>
+                            <th data-ordering="false">FIN No</th>
+                            <th data-ordering="false">View</th>
+                            {/* <th>Assigned To</th>
                                                         <th>Created By</th>
                                                         <th>Create Date</th>
                                                         <th>Status</th>
                                                         <th>Priority</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-
-                                                        <td>01</td>
-                                                        <td>VLZ-452</td>
-                                                        <td>VLZ1400087402</td>
-                                                        <td>
-                                                            <a href="#!">Post launch reminder/ post list</a>
-                                                        </td>
-                                                        <td>Joseph Parker</td>
-                                                        <td>Alexis Clarke</td>
-                                                        <td>Joseph Parker</td>
-                                                        <td>03 Oct, 2021</td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                Re-open
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-danger">High</span>
-                                                        </td>
-                                                        <td>
-                                                            <Link to='/viewworker'>
-                                                                <span className="badge bg-info-subtle text-info">
-                                                                    <i className="ri-eye-fill align-bottom me-2" />
-                                                                    View
-                                                                </span>
-                                                            </Link>
-
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>02</td>
-                                                        <td>VLZ-453</td>
-                                                        <td>VLZ1400087425</td>
-                                                        <td>
-                                                            <a href="#!">Additional Calendar</a>
-                                                        </td>
-                                                        <td>Diana Kohler</td>
-                                                        <td>Admin</td>
-                                                        <td>Mary Rucker</td>
-                                                        <td>05 Oct, 2021</td>
-                                                        <td>
-                                                            <span className="badge bg-secondary-subtle text-secondary">
-                                                                On-Hold
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info">Medium</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>03</td>
-                                                        <td>VLZ-454</td>
-                                                        <td>VLZ1400087438</td>
-                                                        <td>
-                                                            <a href="#!">Make a creating an account profile</a>
-                                                        </td>
-                                                        <td>Tonya Noble</td>
-                                                        <td>Admin</td>
-                                                        <td>Tonya Noble</td>
-                                                        <td>27 April, 2022</td>
-                                                        <td>
-                                                            <span className="badge bg-danger-subtle text-danger">
-                                                                Closed
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-success">Low</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>04</td>
-                                                        <td>VLZ-455</td>
-                                                        <td>VLZ1400087748</td>
-                                                        <td>
-                                                            <a href="#!">Apologize for shopping Error!</a>
-                                                        </td>
-                                                        <td>Joseph Parker</td>
-                                                        <td>Alexis Clarke</td>
-                                                        <td>Joseph Parker</td>
-                                                        <td>14 June, 2021</td>
-                                                        <td>
-                                                            <span className="badge bg-warning-subtle text-warning">
-                                                                Inprogress
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info">Medium</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>05</td>
-                                                        <td>VLZ-456</td>
-                                                        <td>VLZ1400087547</td>
-                                                        <td>
-                                                            <a href="#!">Support for theme</a>
-                                                        </td>
-                                                        <td>Donald Palmer</td>
-                                                        <td>Admin</td>
-                                                        <td>Donald Palmer</td>
-                                                        <td>25 June, 2021</td>
-                                                        <td>
-                                                            <span className="badge bg-danger-subtle text-danger">
-                                                                Closed
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-success">Low</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>06</td>
-                                                        <td>VLZ-457</td>
-                                                        <td>VLZ1400087245</td>
-                                                        <td>
-                                                            <a href="#!">Benner design for FB &amp; Twitter</a>
-                                                        </td>
-                                                        <td>Mary Rucker</td>
-                                                        <td>Jennifer Carter</td>
-                                                        <td>Mary Rucker</td>
-                                                        <td>14 Aug, 2021</td>
-                                                        <td>
-                                                            <span className="badge bg-warning-subtle text-warning">
-                                                                Inprogress
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info">Medium</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>07</td>
-                                                        <td>VLZ-458</td>
-                                                        <td>VLZ1400087785</td>
-                                                        <td>
-                                                            <a href="#!">Change email option process</a>
-                                                        </td>
-                                                        <td>James Morris</td>
-                                                        <td>Admin</td>
-                                                        <td>James Morris</td>
-                                                        <td>12 March, 2022</td>
-                                                        <td>
-                                                            <span className="badge bg-primary-subtle text-primary">
-                                                                Open
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-danger">High</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>08</td>
-                                                        <td>VLZ-460</td>
-                                                        <td>VLZ1400087745</td>
-                                                        <td>
-                                                            <a href="#!">Support for theme</a>
-                                                        </td>
-                                                        <td>Nathan Cole</td>
-                                                        <td>Nancy Martino</td>
-                                                        <td>Nathan Cole</td>
-                                                        <td>28 Feb, 2022</td>
-                                                        <td>
-                                                            <span className="badge bg-secondary-subtle text-secondary">
-                                                                On-Hold
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-success">Low</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>09</td>
-                                                        <td>VLZ-461</td>
-                                                        <td>VLZ1400087179</td>
-                                                        <td>
-                                                            <a href="#!">Form submit issue</a>
-                                                        </td>
-                                                        <td>Grace Coles</td>
-                                                        <td>Admin</td>
-                                                        <td>Grace Coles</td>
-                                                        <td>07 Jan, 2022</td>
-                                                        <td>
-                                                            <span className="badge bg-success-subtle text-success">
-                                                                New
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-danger">High</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>10</td>
-                                                        <td>VLZ-462</td>
-                                                        <td>VLZ140008856</td>
-                                                        <td>
-                                                            <a href="#!">Edit customer testimonial</a>
-                                                        </td>
-                                                        <td>Freda</td>
-                                                        <td>Alexis Clarke</td>
-                                                        <td>Freda</td>
-                                                        <td>16 Aug, 2021</td>
-                                                        <td>
-                                                            <span className="badge bg-danger-subtle text-danger">
-                                                                Closed
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info">Medium</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>11</td>
-                                                        <td>VLZ-463</td>
-                                                        <td>VLZ1400078031</td>
-                                                        <td>
-                                                            <a href="#!">Ca i have an e-copy invoice</a>
-                                                        </td>
-                                                        <td>Williams</td>
-                                                        <td>Admin</td>
-                                                        <td>Williams</td>
-                                                        <td>24 Feb, 2022</td>
-                                                        <td>
-                                                            <span className="badge bg-primary-subtle text-primary">
-                                                                Open
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-success">Low</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>12</td>
-                                                        <td>VLZ-464</td>
-                                                        <td>VLZ1400087416</td>
-                                                        <td>
-                                                            <a href="#!">Brand logo design</a>
-                                                        </td>
-                                                        <td>Richard V.</td>
-                                                        <td>Admin</td>
-                                                        <td>Richard V.</td>
-                                                        <td>16 March, 2021</td>
-                                                        <td>
-                                                            <span className="badge bg-warning-subtle text-warning">
-                                                                Inprogress
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-danger">High</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>13</td>
-                                                        <td>VLZ-466</td>
-                                                        <td>VLZ1400089015</td>
-                                                        <td>
-                                                            <a href="#!">Issue with finding information about order ?</a>
-                                                        </td>
-                                                        <td>Olive Gunther</td>
-                                                        <td>Alexis Clarke</td>
-                                                        <td>Schaefer</td>
-                                                        <td>32 March, 2022</td>
-                                                        <td>
-                                                            <span className="badge bg-success-subtle text-success">
-                                                                New
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-danger">High</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-
-                                                        <td>14</td>
-                                                        <td>VLZ-467</td>
-                                                        <td>VLZ1400090324</td>
-                                                        <td>
-                                                            <a href="#!">Make a creating an account profile</a>
-                                                        </td>
-                                                        <td>Edwin</td>
-                                                        <td>Admin</td>
-                                                        <td>Edwin</td>
-                                                        <td>05 April, 2022</td>
-                                                        <td>
-                                                            <span className="badge bg-warning-subtle text-warning">
-                                                                Inprogress
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-success">Low</span>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-info-subtle text-info">
-                                                                <i className="ri-eye-fill align-bottom me-2" />
-                                                                View
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                                {/*end col*/}
-                            </div>
-                        </div>
+                                                        <th>Action</th> */}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredWorkers.length === 0 ? (
+                            <tr>
+                              <td colSpan="9" className="text-center py-3">
+                                <Icon icon="mdi:account-off-outline" className="fs-48px text-muted" /><br></br>
+                                No Employee Record
+                              </td>
+                            </tr>
+                          ) : (
+                            filteredWorkers.map((worker, index) => (
+                              <tr key={worker.Id}>
+                                <td>{index + 1}</td>
+                                <td>{worker.EmpId}</td>
+                                <td>{worker.EmpPosition}</td>
+                                <td>
+                                  {worker.FirstName} {worker.LastName}
+                                </td>
+                                {/* <td>{worker.ContNum}</td> */}
+                                <td>{worker.FinNo}</td>
+                                {/* <td>{worker.SelectFeilds}</td> */}
+                                {/* <td>{worker.Gender}</td> */}
+                                {/* <td> <span
+                        className="btn btn-sm border p-0 px-3"
+                        onClick={() => handleView(worker.FinNo)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        View
+                      </span></td> */}
+                                <td>
+                                  <span
+                                    className="badge bg-info-subtle text-info"
+                                    onClick={() => handleView(worker.FinNo)}
+                                    style={{ cursor: "pointer" }}
+                                  >
+                                    <i className="ri-eye-fill align-bottom me-2" />
+                                    View
+                                  </span>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
                     </div>
+                  </div>
                 </div>
+                {/*end col*/}
+              </div>
             </div>
-            {/*end row*/}
-        </>
+          </div>
+        </div>
+      </div>
+      {/*end row*/}
+    </>
 
-    )
+  )
 }
 export default WorkerTableRight;
+
+{/* <tr>
+
+<td>14</td>
+<td>VLZ-467</td>
+<td>VLZ1400090324</td>
+<td>
+    <a href="#!">Make a creating an account profile</a>
+</td>
+<td>Edwin</td>
+<td>Admin</td>
+<td>Edwin</td>
+<td>05 April, 2022</td>
+<td>
+    <span className="badge bg-warning-subtle text-warning">
+        Inprogress
+    </span>
+</td>
+<td>
+    <span className="badge bg-success">Low</span>
+</td>
+<td>
+    <span className="badge bg-info-subtle text-info">
+        <i className="ri-eye-fill align-bottom me-2" />
+        View
+    </span>
+</td>
+</tr> */}

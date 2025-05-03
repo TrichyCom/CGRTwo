@@ -82,21 +82,22 @@ const upload = multer({
 });
 
 
+// const db = mysql.createConnection({
+//   host: 'localhost',
+//   user: 'root',      
+//   password: 'Mysql-prakashs', 
+//   database: 'CGR'  
+// });
+
+
+
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',      
-  password: 'Mysql-prakashs', 
-  database: 'CGR'  
+  host: config.dbHost,
+  user: config.dbUser,
+  password: config.dbPassword,
+  database: config.dbName
 });
 
-
-
-// const db = mysql.createConnection({
-//   host: config.dbHost,
-//   user: config.dbUser,
-//   password: config.dbPassword,
-//   database: config.dbName
-// });
 
 
 
@@ -159,13 +160,13 @@ app.use(bodyParser.json());
     
       const selectFieldsString = JSON.stringify(data.SelectFeilds);
 
-    const query = `INSERT INTO addworker (EmpId, EmpPosition, CompanyName, FirstName, LastName, ExpYear, ContNum, BankAccNum, SelectFeilds, Department, Age, Gender,
+    const query = `INSERT INTO addworker (EmpId, EmpPosition, CompanyName, FirstName, LastName, SelectSupervisor, ExpYear, ContNum, BankAccNum, SelectFeilds, Department, Age, Gender,
       EmergencyContNum, PanTaxId, SelectRole, FinNo, DOA, DOI, DO_Onboard, WP_No, PP_No, DOB,
       DO_ThumbPrint, DO_Renewal, WP_Expiry, WP_BalDays, PP_Expiry, PP_BalDays, SelectCourse, Category, Cert_No, DOE,
       SMSE, Rigger, ssrc_sssrc, Levels, DOI_Two, BalanceDays, WAHA_M, Singnel_Man, ProfileImg)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const values = [
-      data.EmpId, data.EmpPosition, data.CompanyName, data.FirstName, data.LastName, data.ExpYear, data.ContNum, 
+      data.EmpId, data.EmpPosition, data.CompanyName, data.FirstName, data.LastName, data.SelectSupervisor, data.ExpYear, data.ContNum, 
       data.BankAccNum,selectFieldsString, data.Department, data.Age, 
       data.Gender, data.EmergencyContNum, data.PanTaxId, data.SelectRole, data.FinNo, data.DOA, 
       data.DOI, data.DO_Onboard, data.WP_No, data.PP_No, data.DOB, data.DO_ThumbPrint, data.DO_Renewal, data.WP_Expiry, data.WP_BalDays, data.PP_Expiry,  data.PP_BalDays,
